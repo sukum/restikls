@@ -1,0 +1,27 @@
+{# File: src/restikls/templates/snapshot/list.detail.html #}
+
+<div id="snapshot_list_summary" 
+    x-cloak x-show="$store._d.open_snapshot_modal"
+>
+    <table class="min-w-full divide-y divide-gray-300">
+        <template x-for="(value, key) in $store._d.snapshot_data">
+            <template x-if="key != 'summary'">
+            <tr>
+                <td class="px-2 py-2 text-sm text-gray-500" x-text="$store.utils.formatKeyToLabel(key)"></td>
+                <td class="px-2 py-2 text-sm text-gray-900 wrap-anywhere" 
+                    x-text="key != 'summary' ? value: ''"
+                ></td>
+            </tr>
+            </template>
+        </template>
+        <tr>
+            <td colspan="2" class="px-2 text-base font-semibold text-gray-900">Summary</td>
+        </tr>
+        <template x-for="(value, key) in $store._d.snapshot_data.summary">
+            <tr>
+                <td class="px-2 py-1 text-sm text-gray-500" x-text="$store.utils.formatKeyToLabel(key)"></td>
+                <td class="px-2 py-1 text-sm text-gray-900" x-html="key.includes('data_added') || key.includes('bytes') ? $store.utils.formatBytesWithOrig(value) : value"></td>
+            </tr>
+        </template>
+    </table>
+</div>

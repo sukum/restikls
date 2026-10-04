@@ -1,0 +1,20 @@
+{# File: src/restikls/templates/layout/base.html #}
+
+{% if not is_xmlhttprequest %}
+<!DOCTYPE html>
+<html lang="en">
+{% include 'layout/head.html' %}
+<body class="bg-gray-100 font-sans flex flex-col min-h-svh">
+    {% include 'layout/menu.html' %}
+    <main class="flex-grow w-full max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+{% endif %}
+{% include 'layout/flash-messages.html' %}
+{% block content %}{% endblock %}
+{% if not is_xmlhttprequest %}
+    </main>
+    {% include 'layout/notification.html' %}
+    {% include 'layout/modal.html' %}
+    {% include 'layout/footer.html' %}
+</body>
+</html>
+{% endif %}

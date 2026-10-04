@@ -1,0 +1,47 @@
+{# File: src/restikls/templates/key/detail.html #}
+
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Key Details</h1>
+    {% if error_message %}
+        <p class="text-red-500 mb-4">{{ error_message }}</p>
+    {% else %}
+        <div class="my-4">
+            <a href="{{ url_for('key.list_keys') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Back to Keys</a>
+        </div>
+        <div id="records_block">
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="text-left p-2">Field</th>
+                    <th class="text-left p-2">Value</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-300">
+                <tr>
+                    <td class="p-2">ID</td>
+                    <td class="p-2">{{ key.id }}</td>
+                </tr>
+                <tr>
+                    <td class="p-2">Host</td>
+                    <td class="p-2">{{ key.hostName }}</td>
+                </tr>
+                <tr>
+                    <td class="p-2">User</td>
+                    <td class="p-2">{{ key.userName }}</td>
+                </tr>
+                <tr>
+                    <td class="p-2">Used <span class="text-xs text-gray-700 italic">(in this request)</span></td>
+                    <td class="p-2"><input type="checkbox" disabled {% if key.current %}checked{% endif %}/></td>
+                </tr>
+                <tr>
+                    <td class="p-2">Created</td>
+                    <td class="p-2">{{ key.created }}</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

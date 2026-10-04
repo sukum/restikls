@@ -1,0 +1,37 @@
+{# File: src/restikls/templates/snapshot/files.table.html #}
+
+{% if error_message %}
+<p class="text-red-500 mb-4">{{ error_message }}</p>
+{% else %}
+<table class="w-full divide-y divide-gray-300 table-fixed">
+    <thead>
+        <tr class="bg-gray-100">
+            <th class="p-2 text-left">Path</th>
+            <th class="p-2 text-left w-24">Size</th>
+            <th class="p-2 text-left w-48">Modified</th>
+            <th class="p-2 text-left w-24">Action</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-300">
+        {% for file in files %}
+            <tr>
+                <td class="p-2 wrap-anywhere">{{ file.path }}</td>
+                <td class="p-2">{{ file.size }}</td>
+                <td class="p-2" title="{{ file.mtime }}">
+                    {{file.mtime | format_datetime(True)}}
+                </td>
+                <td class="p-2">
+                    {#{% if file.size %}#}
+                    <a href="{{ url_for('file.file_history', file_path=file.path, paths=snapshot['paths'], snapshot_id=snapshot_id, search=search, parent_page=page) }}"
+                        class="text-blue-500 hover:underline"
+                    >History</a>
+                    {#{% endif %}#}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if is_ajax %}
+    {% include 'layout/ajax_footer.html' %}
+{% endif %}

@@ -1,0 +1,87 @@
+{# File: src/restikls/templates/layout/menu.html #}
+
+<nav class="bg-white shadow-md" x-data="{ open: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="{{ url_for('dashboard.index') }}" class="text-2xl font-bold text-gray-900">Restic UI</a>
+            </div>
+            <!-- Desktop Menu -->
+            <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8 sm:pt-6">
+                {% if g.repo_cred %}
+                <a href="{{ url_for('dashboard.index') }}"
+                    class="{% if request.endpoint == 'dashboard' %}text-blue-600 border-b-2 border-blue-600
+                        {% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 text-sm font-medium"
+                    aria-current="{% if request.endpoint == 'dashboard' %}page{% else %}false{% endif %}">Dashboard</a>
+                <a href="{{ url_for('snapshot.list_snapshots') }}"
+                    class="{% if request.endpoint.startswith('snapshots.') %}text-blue-600 border-b-2 border-blue-600
+                        {% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 text-sm font-medium"
+                    aria-current="{% if request.endpoint.startswith('snapshots.') %}page{% else %}false{% endif %}">Snapshots</a>
+                <a href="{{ url_for('key.list_keys') }}"
+                    class="{% if request.endpoint.startswith('keys.') %}text-blue-600 border-b-2 border-blue-600
+                        {% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 text-sm font-medium"
+                    aria-current="{% if request.endpoint.startswith('keys.') %}page{% else %}false{% endif %}">Keys</a>
+                <a href="{{ url_for('manage.index') }}"
+                    class="{% if request.endpoint == 'manage' %}text-blue-600 border-b-2 border-blue-600
+                        {% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 text-sm font-medium"
+                    aria-current="{% if request.endpoint == 'manage' %}page{% else %}false{% endif %}">Manage</a>
+                {% endif %}
+                <a href="{{ url_for('config_routes.config') }}"
+                    class="{% if request.endpoint == 'config_routes.config' %}text-blue-600 border-b-2 border-blue-600
+                        {% else %}text-gray-500 hover:text-gray-700{% endif %} px-3 py-2 text-sm font-medium"
+                    aria-current="{% if request.endpoint == 'config_routes.config' %}page{% else %}false{% endif %}">Config</a>
+                {% if g.repo_cred %}
+                <a href="{{ url_for('config_routes.logout') }}"
+                    class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Logout</a>
+                {% endif %}
+            </div>
+            <!-- Mobile Menu Button -->
+            <div class="-mr-2 flex items-center sm:hidden">
+                <button @click="open = !open" type="button"
+                    class="bg-gray-900 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                    aria-controls="mobile-menu" aria-expanded="false"
+                >
+                    <span class="sr-only">Open main menu</span>
+                    <svg x-show="!open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <svg x-show="open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div x-show="open" class="sm:hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1">
+            {% if g.repo_cred %}
+            <a href="{{ url_for('dashboard.index') }}"
+                class="{% if request.endpoint == 'dashboard' %}bg-blue-50 border-blue-500 text-blue-700
+                    {% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            >Dashboard</a>
+            <a href="{{ url_for('snapshot.list_snapshots') }}"
+                class="{% if request.endpoint.startswith('snapshots.') %}bg-blue-50 border-blue-500 text-blue-700
+                    {% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            >Snapshots</a>
+            <a href="{{ url_for('key.list_keys') }}"
+                class="{% if request.endpoint.startswith('keys.') %}bg-blue-50 border-blue-500 text-blue-700
+                    {% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            >Keys</a>
+            <a href="{{ url_for('manage.index') }}"
+                class="{% if request.endpoint == 'manage' %}bg-blue-50 border-blue-500 text-blue-700
+                    {% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            >Manage</a>
+            {% endif %}
+            <a href="{{ url_for('config_routes.config') }}"
+                class="{% if request.endpoint == 'config_routes.config' %}bg-blue-50 border-blue-500 text-blue-700
+                    {% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            >Config</a>
+            {% if g.repo_cred %}
+            <a href="{{ url_for('config_routes.logout') }}"
+                class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Logout</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

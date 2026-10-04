@@ -1,0 +1,10 @@
+{# File: src/restikls/templates/layout/ajax_footer.html #}
+
+<span class="hidden" x-data="" 
+x-init="$store._d.time = '{{ get_execution_time() }}';
+const $pg = $store.pagination;
+$pg.url = '{{ _url }}';
+$pg.page = {{ page }};
+$pg.total_pages = {{ total_pages }};
+$pg.record_count = {{ record_count }}" 
+/>

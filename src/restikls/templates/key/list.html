@@ -1,0 +1,32 @@
+{# File: src/restikls/templates/key/list.html #}
+
+{% import 'layout/_macros.html' as macros %}
+
+{% extends "layout/list.html" %}
+
+{% block list_title %}Keys{% endblock %}
+
+{% block list_content %}
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead>
+            <tr class="bg-gray-100">
+                <th scope="col" class="{{ macros.title_th_classes() }} w-24">ID</th>
+                <th scope="col" class="{{ macros.title_th_classes() }}">User</th>
+                <th scope="col" class="{{ macros.title_th_classes() }}">Host</th>
+                <th scope="col" class="text-left font-semibold text-gray-900">Used <span class="text-xs text-gray-700 italic">(now)</span></th>
+                <th scope="col" class="{{ macros.title_th_classes() }}">Created</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-300">
+            {% for key in keys %}
+                <tr>
+                    <td class="p-2"><a href="{{ url_for('key.key_detail', key_id=key.id) }}" class="text-blue-500 hover:underline" title="{{ key.id }}">{{ key.id[:10] }}</a></td>
+                    <td class="p-2">{{ key.userName }}</td>
+                    <td class="p-2">{{ key.hostName }}</td>
+                    <td class="p-2"><input type="checkbox" disabled {% if key.current %}checked{% endif %}/></td>
+                    <td class="p-2">{{ key.created }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

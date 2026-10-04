@@ -1,0 +1,76 @@
+{# File: src/restikls/templates/snapshot/detail.html #}
+
+{% import 'layout/_macros.html' as macros %}
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md" x-data="{}">
+    <h1 class="text-2xl font-bold mb-4">Snapshot Details</h1>
+    {% if error_message %}
+        <p class="text-red-500 mb-4">{{ error_message }}</p>
+    {% else %}
+        <div class="my-4">
+            <a href="{{ url_for('file.snapshot_files', snapshot_id=snapshot.id) }}"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >List Files</a>
+            <a href="{{ url_for('snapshot.list_snapshots') }}"
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+            >Back to Snapshots</a>
+        </div>
+        <div id="records_block">
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th scope="col" class="p-2 w-48 text-left text-sm font-semibold text-gray-900">Field</th>
+                    <th scope="col" class="p-2 text-left text-sm font-semibold text-gray-900">Value</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                <tr><td class="p-2">ID</td><td class="p-2">{{ snapshot.id }}</td></tr>
+                <tr><td class="p-2">Short ID</td><td class="p-2">{{ snapshot.short_id }}</td></tr>
+                <tr><td class="p-2">Time</td><td class="p-2" title="{{ snapshot.time }}">{{ snapshot.time | format_datetime(True) }}</td></tr>
+                <tr><td class="p-2">Username</td><td class="p-2">{{ snapshot.username }}</td></tr>
+                <tr><td class="p-2">Host</td><td class="p-2">
+                    {{ macros.color_box_md(snapshot.hostname, {'class': 'inline-flex items-center'}) }}
+                </td></tr>
+                <tr><td class="p-2">Tags</td><td class="p-2">
+                    {% for _tag in snapshot.tags %}
+                        {{ macros.color_box_md(_tag, {'class': 'inline-flex items-center'}) }}
+                    {% endfor %}
+                </td></tr>
+                <tr><td class="p-2">Paths</td><td class="p-2">{{ snapshot.paths|join(', ') }}</td></tr>
+                <tr><td class="p-2">Program version</td><td class="p-2">{{ snapshot.program_version }}</td></tr>
+                <!-- Add more snapshot fields as needed -->
+            </tbody>
+        </table>
+
+        <h2 class="text-xl font-bold mt-6 mb-4">Summary</h2>
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th scope="col" class="p-2 text-left text-sm font-semibold text-gray-900">Field</th>
+                    <th scope="col" class="p-2 w-1/2 text-left text-sm font-semibold text-gray-900">Value</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for key, value in snapshot.summary.items() %}
+                {% set is_bytes = 'data_added' in key or 'total_bytes' in key %}
+                {% set is_datetime = value is string and value | length > 20 %}
+                <tr>
+                    <td class="p-2">{{ key|replace('_', ' ')|capitalize }}</td>
+                    <td class="p-2" {% if is_bytes %} x-html="$store.utils.formatBytesWithOrig({{ value }})" {% elif is_datetime %}title="{{ value }}"{% endif %}>
+                    {% if not is_bytes %}
+                        {% if is_datetime %}
+                            {{ value | format_datetime(True) }}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/*
+@theme {
+  --default-border-color: var(--color-gray-200);
+  --default-border-width: thin;
+}
+*/
+
+.txt-box-border {
+    border-style: groove;
+    border-width: 1px;
+    border-color: var(--color-gray-300);
+}
+.txt-box-border:outline {
+    outline-color: var(--color-gray-500);
+    outline-width: 1px;
+    outline-style: groove;
+}
+
+[x-cloak] { display: none !important; }
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@keyframes manage_spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+.manage_button {
+    padding-right: 2.5rem;
+}
+.manage_spin::after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 7px);
+    right: 12px;
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: manage_spin 1.2s linear infinite;
+    vertical-align: middle;
+}

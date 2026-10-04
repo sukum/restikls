@@ -1,0 +1,35 @@
+{# File: src/restikls/templates/config.html #}
+
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Configure Restic Repository</h1>
+    {% if error_message %}
+        <p class="text-red-500 mb-4">{{ error_message | escape | replace('\n', '<br>') | safe }}</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('config_routes.config') }}">
+        <div class="mb-4">
+            <label for="repo_path" class="block text-gray-700">Repository Path</label>
+            <input type="text" id="repo_path" name="repo_path" value="{{ repo_path }}" class="p-2 border rounded" size="60" required>
+        </div>
+        <div class="mb-4">
+            <label for="repo_key" class="block text-gray-700">Repository Key</label>
+            <input type="password" id="repo_key" name="repo_key" class="p-2 border rounded" size="60" {% if has_key %}disabled{% endif %}>
+            {% if has_key %}
+                <p class="text-sm text-gray-600 size-fit bg-green-200">Key available</p>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label for="ssh_key" class="block text-gray-700">SSH Private Key (for SFTP repos)</label>
+            <textarea id="ssh_key" name="ssh_key" class="p-2 border rounded font-mono text-sm" rows="8" cols="72" {% if has_ssh_key %}placeholder="An SSH key is already configured. To change it, paste the new key here."{% endif %}></textarea>
+            {% if has_ssh_key %}
+                <div class="text-sm text-gray-600 size-fit bg-green-200 mt-1">
+                    <p>SSH Key available</p>
+                </div>
+            {% endif %}
+            <p class="text-xs text-gray-500 mt-1">Leave blank to keep the existing key. Paste a new key to update it.</p>
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">Save</button>
+    </form>
+</div>
+{% endblock %}

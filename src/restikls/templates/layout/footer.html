@@ -1,0 +1,8 @@
+{# File: src/restikls/templates/layout/footer.html #}
+
+<footer class="mt-auto w-full text-center" x-data>
+    <div class="text-xs"
+        x-text="$store._d.time" 
+        x-init="$store._d.time='{{ get_execution_time() }}'"
+    ></div>
+</footer>

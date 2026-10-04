@@ -1,0 +1,124 @@
+{# File: src/restikls/templates/file/history.table.html #}
+
+{% import 'layout/_macros.html' as macros %}
+{% if error_message %}
+<p class="text-red-500 mb-4">{{ error_message }}</p>
+{% else %}
+<table class="min-w-full divide-y divide-gray-300">
+    <thead>
+        <tr class="bg-gray-100">
+            <th scope="col" class="{{ macros.title_th_classes_sm() }} max-w-[50%] text-wrap">Path</th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }}">User/Group <span class="align-right">Permissions</span></th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }}">Created/Modified/Access</th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }}">Size</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 bg-white">
+        {% for item in files %}
+        {% set outer_loop = loop %}
+        <tr class="bg-gray-200">
+            <td class="p-2" colspan="4" title="{{ item.snapshot }}">
+                <a href="{{ url_for('snapshot.snapshot_detail', snapshot_id=item.snapshot) }}"
+                    class="rounded-sm bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600 shadow-xs hover:bg-indigo-100 underline"
+                >snapshot</a> {{ item.snapshot  }} 
+                <span class="inline-flex items-center rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ item.hits }}</span>
+            </td>
+        </tr>
+        {% for match in item.matches %}
+        <tr>
+            <td class="p-2 text-sm text-gray-500">
+                {% if match.type == "file" %}
+                <div x-data="{ loading: false, url: '{{ url_for('file.file_view', snapshot_id=item.snapshot, file_path=match.path) }}'}"
+                    class="inline-block pb-1 align-middle"
+                >
+                    <a href="javascript:void(0)"
+                    @click.debounce="!loading && $store.utils.viewFile($data)"
+                    :disabled="loading"
+                    title="view"
+                    >
+                        <span x-show="!loading">
+                            {{ macros.svg_icon("view", outer_loop.first) }}
+                        </span>
+                        <span x-cloak x-show="loading">
+                            {{ macros.svg_icon("loading", outer_loop.first) }}
+                        </span>
+                    </a>
+                </div>
+                <div x-data="{ loading: false, url: '{{ url_for('file.file_download') }}', file_path: '{{ match.path }}', snapshot_id: '{{ item.snapshot }}' }"
+                    class="inline-block pb-1 align-middle"
+                >
+                    <a href="javascript:void(0)" 
+                    @click.debounce="!loading && $store.utils.downloadFile($data)"
+                    :disabled="loading"
+                    title="download"
+                    >
+                        <span x-show="!loading">
+                            {{ macros.svg_icon("download", outer_loop.first) }}
+                        </span>
+                        <span x-cloak x-show="loading">
+                            {{ macros.svg_icon("loading", outer_loop.first) }}
+                        </span>
+                    </a>
+                </div>
+                {% endif %}
+                {{ match.path }}
+            </td>
+            <td class="p-2 text-sm whitespace-nowrap text-gray-500">
+                <div class="flex flex-col lg:flex-row lg:items-center">
+                  <div class="inline-block mb-1 lg:mb-0">
+                    {{ macros.color_box_sm(
+                        match.user,
+                        {'class': "inline-flex items-center"}
+                    ) }}
+                    :
+                    {{ macros.color_box_sm(
+                        match.group,
+                        {'class': "inline-flex items-center"}
+                    ) }}
+                  </div>
+                  <div class="inline-block lg:ml-2">
+                    {{ macros.color_box_sm(
+                        match.permissions,
+                        {'class': "inline-flex items-center"}
+                    ) }}
+                    {{ macros.color_box_sm(
+                        match.mode,
+                        {'class': "inline-flex items-center"},
+                        match.mode|format_filemode
+                    ) }}
+                  </div>
+                </div>
+            </td>
+            <td class="p-2 text-sm whitespace-nowrap text-gray-500">
+                <div class="flex flex-col lg:flex-row lg:items-center">
+                {{ macros.color_box_sm(
+                    match.ctime,
+                    {'class': "mb-1 lg:mb-0"},
+                    ["c: ", match.ctime | format_datetime(True)]
+                ) }} 
+                {{ macros.color_box_sm(
+                    match.mtime,
+                    {'class': "mb-1 lg:mb-0 lg:ml-2"},
+                    ["m: ", match.mtime | format_datetime(True)]
+                ) }} 
+                {{ macros.color_box_sm(
+                    match.atime,
+                    {'class': "lg:ml-2"},
+                    ["a: ", match.atime | format_datetime(True)]
+                ) }}
+                </div>
+            </td>
+            <td class="p-2 text-sm whitespace-nowrap text-gray-500">
+                {{ macros.color_box_sm(
+                    match.size,
+                    {'class': "inline-flex items-center"},
+                    [match.size, 'bytes' if match.type == "file" else '']
+                ) }}
+            </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if is_ajax %}{% include 'layout/ajax_footer.html' %}{% endif %}

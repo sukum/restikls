@@ -1,0 +1,18 @@
+# CACHE_TYPE = "FileSystemCache"
+# CACHE_DIR = "cache"
+# CACHE_TYPE = "SimpleCache"
+# CACHE_TYPE = "NullCache"
+# CACHE_DEFAULT_TIMEOUT = 300
+SERVER_NAME = 'localhost'
+APPLICATION_ROOT = '/'
+PREFERRED_URL_SCHEME = 'http'
+TESTING = true
+LOG_LEVEL='critical'
+
+DEBUG = true
+SECRET_KEY = "a-secret-key-for-testing"
+APP_NAME = "My Test App"
+# Example cache config for testing
+[CACHE]
+CACHE_TYPE = "SimpleCache"
+CACHE_DEFAULT_TIMEOUT = 300

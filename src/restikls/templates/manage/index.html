@@ -1,0 +1,103 @@
+{# File: src/restikls/templates/manage/index.html #}
+
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md"
+    x-data="
+    {
+        result: {},
+        cache: {},
+        working: false,
+        btnClass(loading) {
+            let css = 'relative manage_button text-white px-4 py-2 rounded ' + (this.working ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 cursor-pointer');
+            css += loading ? ' manage_spin' : '';
+            return css;
+        }
+    }"
+>
+    <h1 class="text-2xl font-bold mb-4">Test</h1>
+    {% if error_message %}
+        <p class="text-red-500 mb-4">{{ error_message }}</p>
+    {% endif %}
+    <div class="flex space-x-4">
+        <button
+            x-data="{loading: false}"
+            @click="loading = true; await $store.utils.fetchConfigKeys($data); loading = false;"
+            :class="btnClass(loading)"
+        >
+        Config keys
+        </button>
+        <button 
+            x-data="{loading: false}"
+            @click="loading = true; await $store.utils.fetchCacheStats($data); loading = false;"
+            :class="btnClass(loading)"
+        >
+        Cache stats
+        </button>
+        <button
+            x-data="{loading: false}"
+            @click="loading = true; await $store.utils.fetchCacheClear($data); loading = false;"
+            :class="btnClass(loading)"
+        >
+        Cache clear
+        </button>
+    </div>
+    <div class="flex space-x-4"></div>
+    <div class="mt-6"
+        x-cloak x-show="Object.keys($data.cache).length"
+    >
+        <h2 class="text-xl font-bold mb-4">Cache Statistics</h2>
+        <p class="text-sm text-gray-600 mb-4">Only cached entries related to this repository. Clearing the cache also only clears the cache entries related to this repository</p>
+        <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="rounded bg-gray-100 p-4">
+                <dt class="text-sm text-gray-600">Entries size</dt>
+                <dd class="text-lg font-semibold" x-text="$data.cache.entries_size ?? '—'"></dd>
+            </div>
+            <div class="rounded bg-gray-100 p-4">
+                <dt class="text-sm text-gray-600">Index TTL</dt>
+                <dd class="text-lg font-semibold"><span x-text="$data.cache.index_ttl ?? '—'"></span> seconds</dd>
+            </div>
+            <div class="rounded bg-gray-100 p-4">
+                <dt class="text-sm text-gray-600">Number of entries</dt>
+                <dd class="text-lg font-semibold" x-text="$data.cache.num_entries"></dd>
+            </div>
+        </dl>
+        <h3 class="text-lg font-semibold mb-2">Entries <span class="text-sm font-normal text-gray-600" x-text="$data.cache.entries ? `(${$data.cache.entries.length})` : '(0)'"></span></h3>
+        <div class="overflow-x-auto rounded border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-300">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th scope="col" class="p-2 w-16 text-left text-sm font-semibold text-gray-900">#</th>
+                        <th scope="col" class="p-2 w-32 text-left text-sm font-semibold text-gray-900">Size</th>
+                        <th scope="col" class="p-2 text-left text-sm font-semibold text-gray-900">Cache key</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <template x-for="(entry, index) in $data.cache.entries" :key="index">
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-2 text-sm text-gray-600" x-text="index + 1"></td>
+                            <td  class="p-2 whitespace-nowrap font-mono text-sm"
+                                x-html="$store.utils.formatBytes(entry.size)"></td>
+                            <td class="p-2 font-mono text-sm break-all"
+                                x-text="entry.key"></td>
+                        </tr>
+                    </template>
+                    <tr x-show="!$data.cache.entries || $data.cache.entries.length === 0">
+                        <td colspan="3" class="p-4 text-center text-sm text-gray-500">No cache entries</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4" x-cloak x-show="Object.keys(result).length">
+        <h2 class="text-xl font-bold">Result</h2>
+        <pre class="bg-gray-100 p-4 rounded" x-html="
+            if (result) {
+                return $store.utils.prettyPrint(result)
+            } else {console.log(result);
+                return 'Invalid data, check console'
+            }
+        "></pre>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{# File: src/restikls/templates/snapshot/files.html #}
+
+{% extends "layout/list.html" %}
+
+{% block list_title %}Snapshot Files{% endblock %}
+
+{% block back_buttons %}
+<a href="{{ url_for('snapshot.snapshot_detail', snapshot_id=snapshot_id) }}" 
+class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+>Back to Snapshot</a>
+<a href="{{ url_for('snapshot.list_snapshots') }}"
+class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+>Back to Snapshots</a>
+{% endblock %}
+
+{% block list_filters %}
+{% set _url = url_for('file.snapshot_files', snapshot_id=snapshot_id) %}
+<form id="filter_form" method="GET" class="w-full flex flex-wrap space-x-4 gap-4" 
+    action="{{ _url }}"
+    x-data="{
+        search: '{{ search }}',
+        url: '{{ _url }}'
+    }"
+>
+    <input name="search" type="text" x-model="search" placeholder="Search files" size="50" class="p-2 border border-gray-300 rounded">
+    <button type="submit" @click.prevent="$store.utils.submitFilter(url)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer ml-auto">Filter</button>
+</form>
+{% endblock %}
+
+{% block list_content %}
+    {% include 'snapshot/files.table.html' %}
+{% endblock %}
+
+{% block list_pagination %}
+    {% include 'layout/pagination.html' %}
+{% endblock %}

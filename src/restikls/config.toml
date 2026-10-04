@@ -1,0 +1,15 @@
+VERSION = 0.1
+DEBUG=false
+LOG_LEVEL='warning'
+LOG_DIRECTORY='logs'
+LOG_FILENAME='app.log'
+# 1MB per file
+LOG_MAX_BYTES=1000000
+# Keep 5 backup files
+LOG_BACKUP_COUNT=5
+# CACHE_TYPE='SimpleCache'
+CACHE_TYPE='FileSystemCache'
+CACHE_DIR='cache'
+CACHE_TIMEOUT = 3600
+PAGE_RECORDS = 10
+REPO_BASE_DIR = '/'

@@ -1,0 +1,49 @@
+{# File: src/restikls/templates/snapshot/list.table.html #}
+
+{% import 'layout/_macros.html' as macros %}
+{% if error_message %}
+<p class="text-red-500 mb-4">{{ error_message }}</p>
+{% else %}
+<table class="min-w-full divide-y divide-gray-300">
+    <thead>
+        <tr class="bg-gray-100">
+            <th scope="col" class="{{ macros.title_th_classes_sm() }} w-28">Short ID</th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }} w-40">Time</th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }}">Host</th>
+            <th scope="col" class="{{ macros.title_th_classes_sm() }}">Tags</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+        {% for snapshot in snapshots %}
+            <tr>
+                <td class="p-2">
+                    <a href="javascript:void(0)"
+                        x-data='{data: {{ snapshot | tojson | safe }}}'
+                        @click.debounce="$store.utils.viewSnapshotDetail(data)"
+                        x-ref="a_{{ snapshot.short_id }}"
+                    >{{ macros.svg_icon('document', loop.first) }}</a>
+                    <a 
+                        href="{{ url_for('snapshot.snapshot_detail', snapshot_id=snapshot.short_id) }}"
+                        class="text-blue-500 hover:underline"
+                        title="{{ snapshot.id }}"
+                    >
+                        {{ snapshot.short_id }}
+                    </a>
+                </td>
+                <td class="p-2" title="{{ snapshot.time }}">{{ snapshot.time | format_datetime }}</td>
+                <td class="p-2">
+                    {{ macros.color_box_md(snapshot.hostname, {'class': 'inline-flex items-center'}) }}
+                </td>
+                <td class="p-2">
+                {% for _tag in snapshot.tags %}
+                    {{ macros.color_box_md(_tag, {'class': 'inline-flex items-center'}) }}
+                {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if is_ajax %}
+    {% include 'layout/ajax_footer.html' %}
+{% endif %}

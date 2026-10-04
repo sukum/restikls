@@ -1,0 +1,38 @@
+{# File: src/restikls/templates/snapshot/list.html #}
+
+{% extends "layout/list.html" %}
+
+{% block list_title %}Snapshots{% endblock %}
+
+{% block list_filters %}
+{% set _url = url_for('snapshot.list_snapshots') %}
+<form id="filter_form" method="GET" class="w-full flex flex-wrap gap-4"
+    action="{{ _url }}"
+    x-data="{
+        sort: '{{ sort }}',
+        tags: '{{ tags }}',
+        hosts: '{{ hosts }}',
+        url: '{{ _url }}' 
+    }"
+>
+    <input type="text" name="tags" x-model="tags" placeholder="Filter by tags space separated" size="32" class="p-2 rounded border border-gray-300 text-sm">
+    <input type="text" name="hosts" x-model="hosts" placeholder="Filter by hosts space separated" size="32" class="p-2 rounded border border-gray-300 text-sm">
+    <select name="sort" x-model="sort" class="p-2 rounded border border-gray-300">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+    </select>
+    <button type="submit" @click.prevent="$store.utils.submitFilter(url)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer ml-auto">Filter</button>
+</form>
+{% endblock %}
+
+{% block list_content %}
+    {% include 'snapshot/list.table.html' %}
+{% endblock %}
+
+{% block list_pagination %}
+    {% include 'layout/pagination.html' %}
+{% endblock %}
+        
+{% block list_footer %}
+    {% include 'snapshot/list.detail.html' %}
+{% endblock %}

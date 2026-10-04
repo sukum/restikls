@@ -1,0 +1,18 @@
+{# File: src/restikls/templates/layout/flash-messages.html #}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+   <div class="flashes mb-3">
+    {% for category, message in messages %}
+      {% set color = {
+        'success': 'green',
+        'error': 'red',
+        'warning': 'yellow'
+      }.get(category, 'blue') %}
+      <div class="rounded-md bg-{{ color }}-50 p-4 mb-2">
+          <p class="text-sm font-medium text-{{ color }}-700">{{ message }}</p>
+      </div>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}

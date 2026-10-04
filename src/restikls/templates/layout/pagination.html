@@ -1,0 +1,61 @@
+{# File: src/restikls/templates/layout/pagination.html #}
+
+<div class="mt-4 flex justify-between" 
+  x-data="{
+    $pg: null,
+    get prev_off() {
+      // const $pg = Alpine.store('pagination');
+      return this.$pg.page <= 1 || this.$pg.loading
+    },
+    get next_off() {
+      // const $pg = Alpine.store('pagination');
+      return this.$pg.page >= this.$pg.total_pages || this.$pg.loading;
+    },
+    init() {
+      this.$pg = $store.pagination;
+      this.$pg.url = '{{ _url }}';
+      this.$pg.page = {{ page }};
+      this.$pg.total_pages = {{ total_pages }};
+      this.$pg.record_count = {{ record_count }};
+    }
+  }"
+>
+  <div class="inline-block">
+    <button
+      class="text-white px-4 py-1 rounded bg-blue-500 cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:bg-gray-500 disabled:cursor-default"
+      @click="$pg.first()" 
+      x-bind:disabled="prev_off" 
+    >First</button>
+    <button
+      class="text-white px-4 py-1 rounded bg-blue-500 cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:bg-gray-500 disabled:cursor-default"
+      @click="$pg.previous()" 
+      x-bind:disabled="prev_off" 
+    >Previous</button>
+  </div>
+  <div class="inline-block grow-1 flex justify-between flow-root mx-2">
+    <span 
+      class="inline-flex items-center rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600 h-full float-left"
+      x-text="$pg.record_count" x-cloak
+    >
+      {{record_count}}
+    </span>
+    <span 
+      class="inline-flex items-center rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600 h-full float-right" 
+      x-text="$pg.page+'/'+$pg.total_pages" x-cloak
+    >
+      {{page}}/{{total_pages}}
+    </span>
+  </div>
+  <div class="inline-block">
+    <button
+      class="text-white px-4 py-1 rounded bg-blue-500 cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:bg-gray-500 disabled:cursor-default"
+      @click="$pg.next()" 
+      x-bind:disabled="next_off" 
+    >Next</button>
+    <button
+      class="text-white px-4 py-1 rounded bg-blue-500 cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:bg-gray-500 disabled:cursor-default"
+      @click="$pg.last()" 
+      x-bind:disabled="next_off" 
+    >Last</button>
+  </div>
+</div>

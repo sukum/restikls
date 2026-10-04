@@ -1,0 +1,11 @@
+{
+  "name": "restikls",
+  "version": "0.1.0",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/restikls/static/css/input.css -o ./src/restikls/static/css/style.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.8",
+    "tailwindcss": "^4.1.8"
+  }
+}

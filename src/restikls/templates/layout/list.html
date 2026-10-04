@@ -1,0 +1,31 @@
+{# File: src/restikls/templates/layout/list.html #}
+
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">
+        {% block list_title %}{% endblock %}
+    </h1>
+    {% if error_message %}
+        <p class="text-red-500 mb-4">{{ error_message }}</p>
+    {% else %}
+        <div class="my-4">
+            {% block back_buttons %}{% endblock %}
+        </div>
+        {# Block for filter/search controls #}
+        <div class="w-full mb-4">
+            {% block list_filters %}{% endblock %}
+        </div>
+
+        {# Main content block where the table will be loaded via AJAX #}
+        <div id="records_block" class="overflow-x-auto" x-data :class="{ 'opacity-50': $store.pagination.loading }">
+            {% block list_content %}{# This block will be filled by the initial table template #}
+            {% endblock %}
+        </div>
+        {% block list_pagination %}{% endblock %}
+    {% endif %}
+</div>
+{% block list_footer %}{% endblock %}
+{% endblock %}
+

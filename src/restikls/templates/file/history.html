@@ -1,0 +1,29 @@
+{# File: src/restikls/templates/file/history.html #}
+
+{% extends "layout/list.html" %}
+
+{% block list_title %}File history{% endblock %}
+
+{% block back_buttons %}
+    {% if snapshot_id %}
+        <a href="{{ url_for('file.snapshot_files', snapshot_id=snapshot_id, page=parent_page, search=search) }}"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        >Back to Snapshot Files</a>
+        <a href="{{ url_for('snapshot.snapshot_detail', snapshot_id=snapshot_id) }}"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        >Back to Snapshot</a>
+    {% endif %}
+    <a href="{{ url_for('snapshot.list_snapshots') }}"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+    >Back to Snapshots</a>
+{% endblock %}
+
+
+{% block list_content %}
+    <h2 class="text-xl font-bold mt-6 mb-4">File Matches</h2>
+    {% include 'file/history.table.html' %}
+{% endblock %}
+
+{% block list_pagination %}
+    {% include 'layout/pagination.html' %}
+{% endblock %}
