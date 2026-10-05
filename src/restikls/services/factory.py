@@ -7,10 +7,10 @@ from typing import Any
 
 from flask import current_app
 
-from .command_executor import LocalExecutor, RestServerExecutor, SftpExecutor
-from .restic_service import ResticService
 from ..models.backends import BackendType, determine_backend_type
 from ..models.credentials import ResticCredentials
+from .command_executor import LocalExecutor, RestServerExecutor, SftpExecutor
+from .restic_service import ResticService
 
 
 class ResticServiceFactory:

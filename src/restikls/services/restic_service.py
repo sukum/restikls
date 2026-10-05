@@ -7,10 +7,10 @@ caching, error handling, and JSON parsing for repository operations.
 import json
 import shlex
 import subprocess
-from typing import Any, Callable, TypeVar, cast
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 from flask import current_app
-
 
 from ..lib.exceptions import (
     FileAccessError,
@@ -21,14 +21,10 @@ from ..lib.exceptions import (
     SnapshotNotFoundError,
 )
 from ..lib.utils import combine_json_lines, time_process
-from .command_builder import CommandSpec, ResticCommandBuilder
-from .command_executor import CommandExecutor
 from ..models.credentials import ResticCredentials
 from ..models.restic_json import (
-    DirNodePayload,
     FileHistoryPayload,
     FileMatchPayload,
-    FileNodePayload,
     KeyPayload,
     NodePayload,
     RepoCheckPayload,
@@ -45,6 +41,8 @@ from ..models.restic_json import (
 )
 from ..models.run_options import RunOptions
 from .cache_service import CacheService
+from .command_builder import ResticCommandBuilder
+from .command_executor import CommandExecutor
 
 T = TypeVar("T")
 
@@ -115,7 +113,7 @@ class ResticService:
             return cast(T, data)
         except ResticValidationError as e:
             current_app.logger.error(
-                f"Validation failed for {error_context} output: {str(e)}"
+                f"Validation failed for {error_context} output: {e!s}"
             )
             current_app.logger.error("cmd: %s", cmd)
             if result:
@@ -143,7 +141,7 @@ class ResticService:
             ) from e
         except json.JSONDecodeError as e:
             current_app.logger.error(
-                f"Error decoding JSON for {error_context}: {str(e)}"
+                f"Error decoding JSON for {error_context}: {e!s}"
             )
             current_app.logger.error("cmd: %s", cmd)
             if result:
@@ -167,15 +165,13 @@ class ResticService:
         spec = builder.snapshots(tags=tags, hosts=hosts)
         cache_key = self.cache_service.generate_key(spec.argv)
 
-        try:
-            snapshots = self._execute_restic_json_cmd(
-                spec.argv, spec.run_options, "snapshots", cache_key, parser=parse_snapshots
-            )
+        snapshots = self._execute_restic_json_cmd(
+            spec.argv, spec.run_options, "snapshots", cache_key, parser=parse_snapshots
+        )
 
-            snapshots.sort(key=lambda x: x["time"], reverse=(sort == "desc"))
-            return snapshots
-        except ResticServiceError:
-            raise
+        snapshots.sort(key=lambda x: x["time"], reverse=(sort == "desc"))
+        return snapshots
+
 
     @time_process(threshold=15)
     def get_snapshot(self, snapshot_id: str) -> list[SnapshotPayload]:

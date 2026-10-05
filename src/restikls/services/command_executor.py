@@ -8,7 +8,6 @@ import subprocess
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import asdict, replace
-from typing import Any
 from urllib.parse import urlparse
 
 from flask import current_app
@@ -98,7 +97,7 @@ class SftpExecutor(CommandExecutor):
 class RestServerExecutor(CommandExecutor):
     """Executes commands for restic rest server repositories."""
 
-    __slots__ = ("repo_cred", "is_auth_required", "rest_user", "rest_password")
+    __slots__ = ("is_auth_required", "repo_cred", "rest_password", "rest_user")
 
     def __init__(self, repo_cred: ResticCredentials):
         clean_repo_path, self.rest_user, self.rest_password = (

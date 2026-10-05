@@ -3,17 +3,18 @@
 Service for validating restic repositories before full configuration.
 """
 
-from typing import NamedTuple
 import subprocess
 import time
+from typing import NamedTuple
 
 from flask import current_app
 
 from ..lib.dummy_cache import DummyCache
 from ..models import credentials
 from .cache_service import CacheService
-from .command_builder import CommandSpec, ResticCommandBuilder
+from .command_builder import ResticCommandBuilder
 from .factory import ResticServiceFactory
+
 
 class ValidationResult(NamedTuple):
     success: bool
@@ -95,7 +96,6 @@ def repository(
             current_app.logger.exception(
                 "An unexpected error occurred during subprocess.run for repository validation"
             )
-            current_app.logger.exception(e)
             return ValidationResult(success=False, error_message=f"An unexpected error occurred: {e}")
 
     except FileNotFoundError as e:
@@ -109,7 +109,5 @@ def repository(
             f"Executable '{cmd_name}' not found. Is it installed and in your PATH?",
         )
     except Exception as e:
-        current_app.logger.exception(
-            f"An unexpected error occurred during validation: {e}"
-        )
+        current_app.logger.exception("An unexpected error occurred during validation:")
         return ValidationResult(False, f"An unexpected error occurred: {e}")

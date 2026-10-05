@@ -27,7 +27,7 @@ class ResticCommandBuilder:
     Builder for constructing restic commands.
     """
     
-    __slots__ = ("repo_cred", "run_options", "cmd")
+    __slots__ = ("cmd", "repo_cred", "run_options")
 
     def __init__(self, repo_cred: ResticCredentials):
         """Initialize the command builder with repository credentials."""

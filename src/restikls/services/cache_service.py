@@ -6,9 +6,7 @@ and clearing cached data, and a decorator for caching function results.
 
 import hashlib
 import re
-from functools import wraps
-from typing import Any, TypeVar, ParamSpec, Protocol
-
+from typing import Any, ParamSpec, Protocol, TypeVar
 
 K = TypeVar("K", contravariant=True)
 V = TypeVar("V")
@@ -133,7 +131,7 @@ class CacheService:
         stats = {
             "num_entries": len(keys),
             "entries": keys_map,
-            "entries_size": f"{str(round(total_entries_size / 1024, 2))} KB",
+            "entries_size": f"{round(total_entries_size / 1024, 2)!s} KB",
             "index_ttl": self.default_ttl,
         }
 
