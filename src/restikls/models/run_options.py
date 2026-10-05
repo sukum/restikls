@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 from ..defaults import DefaultConfig
 
+
 @dataclass
 class RunOptions:
     """

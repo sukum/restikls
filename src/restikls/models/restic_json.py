@@ -8,7 +8,6 @@ from typing import Any, TypedDict, cast
 
 from ..lib.exceptions import ResticValidationError
 
-
 # ==============================================================================
 # TypedDict Definitions
 # ==============================================================================

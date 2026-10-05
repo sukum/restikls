@@ -3,10 +3,8 @@
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-import os
-from typing import Any, Optional
-
 from pathlib import Path
+
 from flask import current_app
 
 
@@ -20,7 +18,7 @@ class BackendType(str, Enum):
 class BackendInput:
     repo_path: str
     repo_key: str = ""
-    ssh_key: Optional[str] = None
+    ssh_key: str | None = None
 
 
 def determine_backend_type(repo_path: str) -> BackendType:
@@ -68,8 +66,8 @@ class BaseBackend(ABC):
             raise ValueError(msg)
         if len(self.repo_key) > current_app.config["REPO_KEY_MAXLEN"]:
             msg = (
-                "Repo key length exceeds allowed maximum length of %s"
-                % current_app.config["REPO_KEY_MAXLEN"]
+                f"Repo key length exceeds allowed maximum length of \
+                    {current_app.config['REPO_KEY_MAXLEN']}"
             )
             current_app.logger.error(msg)
             raise ValueError(msg)
@@ -115,7 +113,7 @@ class LocalBackend(BaseBackend):
 
 @dataclass
 class SFTPBackend(BaseBackend):
-    ssh_key: Optional[str] = None
+    ssh_key: str | None = None
 
     def __post_init__(self) -> None:
         """

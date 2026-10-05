@@ -1,6 +1,6 @@
 # File: src/restikls/models/credentials.py
-from dataclasses import dataclass
 import time
+from dataclasses import dataclass
 
 from flask import current_app
 
