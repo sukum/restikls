@@ -66,7 +66,7 @@ def test_init_with_default_timeout(mock_cache):
     """Test initialization with default TTL."""
     service = CacheService(mock_cache)
     assert service.cache == mock_cache
-    assert service.default_ttl is DefaultConfig.CACHE_DEFAULT_TIMEOUT
+    assert service.default_ttl == DefaultConfig.CACHE_DEFAULT_TIMEOUT
 
 
 def test_init_with_custom_timeout(mock_cache):
@@ -78,13 +78,13 @@ def test_init_with_custom_timeout(mock_cache):
 def test_init_with_zero_timeout(mock_cache):
     """Test initialization with TTL of 0 sets default_ttl to the default value."""
     service = CacheService(mock_cache, timeout=0)
-    assert service.default_ttl is DefaultConfig.CACHE_DEFAULT_TIMEOUT
+    assert service.default_ttl == DefaultConfig.CACHE_DEFAULT_TIMEOUT
 
 
 def test_init_with_none_timeout(mock_cache):
     """Test initialization with TTL of None sets default_ttl to the default value."""
     service = CacheService(mock_cache, timeout=None)
-    assert service.default_ttl is DefaultConfig.CACHE_DEFAULT_TIMEOUT
+    assert service.default_ttl == DefaultConfig.CACHE_DEFAULT_TIMEOUT
 
 
 def test_generate_key_consistent(cache_service):
