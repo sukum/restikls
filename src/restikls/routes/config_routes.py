@@ -8,8 +8,9 @@ This module provides:
   including support for SFTP and SSH key validation.
 """
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, TypedDict
+from typing import Any, TypedDict
 
 from flask import (
     Blueprint,
@@ -24,11 +25,10 @@ from flask import (
     url_for,
 )
 
-
 from ..lib.config import clear_config, get_repo_cred, set_config
 from ..lib.exceptions import ConfigurationError
-from ..models.credentials import ResticCredentials
 from ..models.backends import BackendInput, BaseBackend, get_repo_scheme
+from ..models.credentials import ResticCredentials
 from ..services.validator_service import repository as validate_repository
 
 bp: Blueprint = Blueprint("config_routes", __name__)
@@ -54,7 +54,7 @@ def handle_configuration_error(error: ConfigurationError) -> tuple[str, int]:
 @bp.errorhandler(Exception)
 def handle_generic_exception(error: Exception) -> tuple[str, int]:
     """Catches any other unexpected exceptions during configuration."""
-    current_app.logger.exception(f"Unexpected configuration error: {str(error)}")
+    current_app.logger.exception("Unexpected configuration error:")
     message = "An unexpected internal error occurred. Please check the logs."
     return render_template("config.html", error_message=message), 500
 

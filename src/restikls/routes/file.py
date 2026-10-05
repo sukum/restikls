@@ -70,7 +70,7 @@ def handle_restic_service_error(
 @bp.errorhandler(Exception)
 def handle_generic_exception(error: Exception) -> tuple[str | Response, int]:
     """Catch-all for any other unexpected exceptions."""
-    current_app.logger.exception(f"An unexpected error occurred: {str(error)}")
+    current_app.logger.exception("An unexpected error occurred:")
     message = "An unexpected internal error occurred. Please check the logs."
     is_api_request = request.is_json or request.path in json_routes
 
@@ -103,7 +103,7 @@ def snapshot_files(snapshot_id: str) -> str:
     if search:
         files = [f for f in files if search.lower() in f["path"].lower()]
 
-    records_per_page, record_count, total_pages = pagination_info(files)
+    _records_per_page, record_count, total_pages = pagination_info(files)
     params = {
         "files": slice_paged_data(files, page),
         "is_ajax": g.is_ajax,
@@ -139,7 +139,7 @@ def file_history() -> str:
         files = g.restic_service.get_file_history(file_path, paths)
         files.sort(key=lambda x: x["matches"][0]["mtime"], reverse=True)
 
-    records_per_page, record_count, total_pages = pagination_info(files)
+    _records_per_page, record_count, total_pages = pagination_info(files)
     params = {
         "file_path": file_path,
         "files": slice_paged_data(files, page),

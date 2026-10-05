@@ -64,7 +64,7 @@ def list_snapshots() -> str:
         filters={"tags": tags, "hosts": hosts, "sort": sort}
     )
 
-    records_per_page, record_count, total_pages = pagination_info(snapshots)
+    _records_per_page, record_count, total_pages = pagination_info(snapshots)
     params = {
         "hosts": hosts,
         "is_ajax": g.is_ajax,

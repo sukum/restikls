@@ -27,7 +27,7 @@ def handle_service_error(error: ResticServiceError) -> tuple[str | Response, int
 @bp.errorhandler(Exception)
 def handle_generic_exception(error: Exception) -> tuple[str | Response, int]:
     """Handles unexpected exceptions"""
-    current_app.logger.exception(f"Unexpected dashboard error: {str(error)}")
+    current_app.logger.exception("Unexpected dashboard error:")
     message = "An unexpected internal error occurred."
     if request.path.startswith("/api/"):
         return handle_api_error(message, 500)
