@@ -240,6 +240,11 @@ class ResticService:
             if not files or not files[0].get("matches"):
                 raise FileAccessError(err_message)
             metadata = files[0]["matches"][0]
+            # find can return dir and file
+            if metadata["type"] != "file":
+                raise FileAccessError(f"Expected file, got a directory for path {file_path}")
+            else: # cast as file
+                metadata = cast(FileMatchPayload, metadata)
             self.cache_service.set(cache_key, metadata)
             return metadata
         except (ResticServiceError, ValueError, IndexError, KeyError) as e:

@@ -39,7 +39,7 @@ def test_parse_snapshots_valid():
     assert len(result) == 1
     assert result[0]["id"] == "full_id_123"
     assert result[0]["short_id"] == "full_id_"
-    assert result[0]["tags"] == ["daily", "prod"]
+    assert "tags" in result[0] and result[0]["tags"] == ["daily", "prod"]
 
 
 def test_parse_snapshots_tags_none_normalized():
@@ -55,7 +55,7 @@ def test_parse_snapshots_tags_none_normalized():
         }
     ]
     result = parse_snapshots(raw)
-    assert result[0]["tags"] == []
+    assert "tags" in result[0] and result[0]["tags"] == []
 
 
 def test_parse_snapshots_not_a_list():
@@ -106,7 +106,7 @@ def test_parse_snapshot_files_valid():
     assert header["id"] == "snap_1"
     assert len(files) == 3
     assert files[0]["path"] == "/data/a.txt"
-    assert files[0]["size"] == 128
+    assert "size" in files[0] and files[0]["size"] == 128
     assert files[1]["type"] == "dir"
     assert files[2]["type"] == "dir"
     assert files[2]["name"] == "src"
@@ -201,7 +201,7 @@ def test_parse_node_delegates_to_file_and_dir():
         "mtime": "2023-01-01",
     }
     file_res = parse_node(file_item)
-    assert file_res["size"] == 128
+    assert "size" in file_res and file_res["size"] == 128
     dir_res = parse_node(dir_item)
     assert "size" not in dir_res
 
@@ -263,7 +263,7 @@ def test_parse_keys_valid():
     keys = parse_keys(raw)
     assert len(keys) == 2
     assert keys[0]["id"] == "k1"
-    assert keys[0]["current"] is True
+    assert "current" in keys[0] and keys[0]["current"] is True
 
 
 def test_parse_key_missing_id():
