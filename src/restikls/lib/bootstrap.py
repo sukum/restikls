@@ -7,8 +7,7 @@ import hashlib
 import os
 import sys
 import time
-from dataclasses import is_dataclass
-from typing import Callable
+from collections.abc import Callable
 
 from flask import Flask, current_app, g, request
 
@@ -140,7 +139,7 @@ def setup_secret(app: Flask) -> None:
     # 2. Setup secret key from environment if available
     # or use hardcoded one if not loaded from config file
     # Get secret key from environment or generate a persistent one
-    if "SECRET_KEY" in app.config and app.config["SECRET_KEY"]:
+    if app.config.get("SECRET_KEY"):
         app.secret_key = app.config["SECRET_KEY"]
         return
 
@@ -170,9 +169,7 @@ def setup_secret(app: Flask) -> None:
         print(msg, file=sys.stderr)
         sys.exit(1)
 
-    if not (
-        "SECRET_KEY" in app.config and app.config["SECRET_KEY"]
-    ):
+    if not (app.config.get("SECRET_KEY")):
         msg = (
             "No secret key. "
             "Generate a secret key with the command 'flask key generate'"

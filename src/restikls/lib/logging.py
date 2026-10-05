@@ -12,6 +12,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask.logging import default_handler
 
+
 def setup_logging(app: Flask) -> None:
     """
     Orchestrates the logging setup for the Flask application.
@@ -29,19 +30,19 @@ def setup_logging(app: Flask) -> None:
         log_path = os.path.join(log_dir, log_file)
 
         # Try to create log directory
-        if not create_log_directory(log_dir):
+        if not create_log_directory(log_dir, app):
             # Fallback to current directory if creation fails
             log_path = log_file
 
         # Configure handler
-        handler = configure_log_handler(log_path, max_bytes, backup_count)
+        handler = configure_log_handler(log_path, max_bytes, backup_count, app)
         if not handler:
             app.logger.error("Failed to configure log handler")
             return
         app.logger.removeHandler(default_handler)
         app.logger.addHandler(handler)
     except Exception as e:
-        print("Error setting up logging", str(e))
+        print(f"Error setting up logging: {e}")
 
     # Set log level
     try:
@@ -51,7 +52,7 @@ def setup_logging(app: Flask) -> None:
     except AttributeError:
         app.logger.setLevel(logging.NOTSET)
 
-def create_log_directory(log_dir: str) -> bool:
+def create_log_directory(log_dir: str, app: Flask) -> bool:
     """
     Creates the log directory if it doesn't exist.
     Args:
@@ -64,15 +65,12 @@ def create_log_directory(log_dir: str) -> bool:
             os.makedirs(log_dir)
         return True
     except OSError as e:
-        logging.error(f"Error creating log directory '{log_dir}': {e}")
-        return False
-    except Exception as e:
-        logging.error(f"Unexpected error creating log directory: {e}")
+        app.logger.error("Error creating log directory '%s': %s", log_dir, e)
         return False
 
 
 def configure_log_handler(
-    log_path: str, max_bytes: int, backup_count: int
+    log_path: str, max_bytes: int, backup_count: int, app: Flask
 ) -> logging.Handler | None:
     """
     Configures and returns a rotating file handler.
@@ -83,15 +81,12 @@ def configure_log_handler(
     Returns:
         RotatingFileHandler: Configured handler or None if configuration fails.
     """
-    try:
-        handler = RotatingFileHandler(
-            log_path, maxBytes=max_bytes, backupCount=backup_count
-        )
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        return handler
-    except Exception as e:
-        logging.error(f"Error configuring log handler: {e}")
-        return None
+    handler = RotatingFileHandler(
+        log_path, maxBytes=max_bytes, backupCount=backup_count
+    )
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    return handler
+

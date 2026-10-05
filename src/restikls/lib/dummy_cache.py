@@ -2,6 +2,7 @@
 
 from typing import Any
 
+
 class DummyCache:
     def get(self, key: str, default: Any=None) -> Any:
         return default

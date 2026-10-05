@@ -7,17 +7,18 @@ and API error handling.
 import json
 import os
 import time
-from collections.abc import Generator
+from collections.abc import Callable, Generator, Iterator
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 from itertools import islice
 from pathlib import Path
-from typing import Callable, Iterator, NamedTuple
+from typing import NamedTuple
 
 from flask import Response, current_app, jsonify
 
 from ..models.credentials import ResticCredentials
+
 
 class PaginationInfo(NamedTuple):
     records_per_page: int
@@ -232,7 +233,7 @@ def handle_api_error(error: str, status_code: int = 500) -> tuple[Response, int]
     return jsonify(
         {
             "error_message": str(error),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "status": status_code,
         }
     ), status_code

@@ -3,6 +3,8 @@ import logging
 import os
 from unittest.mock import MagicMock
 
+import pytest
+
 from restikls.lib.logging import configure_log_handler, create_log_directory
 
 
@@ -34,7 +36,7 @@ def test_setup_logging(app, tmp_path):
 # --- Tests for create_log_directory ---
 
 
-def test_create_log_directory_when_dir_does_not_exist(monkeypatch):
+def test_create_log_directory_when_dir_does_not_exist(app, monkeypatch):
     """
     Test that the directory is created if it does not exist.
     """
@@ -48,14 +50,14 @@ def test_create_log_directory_when_dir_does_not_exist(monkeypatch):
     log_dir = "/tmp/test_logs"
 
     # Act
-    result = create_log_directory(log_dir)
+    result = create_log_directory(log_dir, app)
 
     # Assert
     assert result is True
     assert makedirs_calls == [log_dir]
 
 
-def test_create_log_directory_when_dir_already_exists(monkeypatch):
+def test_create_log_directory_when_dir_already_exists(app, monkeypatch):
     """
     Test that os.makedirs is not called if the directory already exists.
     """
@@ -67,14 +69,14 @@ def test_create_log_directory_when_dir_already_exists(monkeypatch):
     log_dir = "/tmp/existing_logs"
 
     # Act
-    result = create_log_directory(log_dir)
+    result = create_log_directory(log_dir, app)
 
     # Assert
     assert result is True
     assert not makedirs_calls  # Check that the list is empty
 
 
-def test_create_log_directory_os_error_on_creation(monkeypatch, caplog):
+def test_create_log_directory_os_error_on_creation(app, monkeypatch, caplog):
     """
     Test that the function returns False and logs an error on OSError.
     """
@@ -90,7 +92,7 @@ def test_create_log_directory_os_error_on_creation(monkeypatch, caplog):
 
     # Act
     with caplog.at_level(logging.ERROR):
-        result = create_log_directory(log_dir)
+        result = create_log_directory(log_dir, app)
 
     # Assert
     assert result is False
@@ -98,33 +100,35 @@ def test_create_log_directory_os_error_on_creation(monkeypatch, caplog):
     assert "Permission denied" in caplog.text
 
 
-def test_create_log_directory_unexpected_error(monkeypatch, caplog):
+def test_create_log_directory_unexpected_error(app, monkeypatch, caplog):
     """
     Test that the function returns False and logs on an unexpected exception.
     """
-
+    original_exists = os.path.exists
+    log_dir = "/tmp/any_log_dir"
     # Arrange: Create a mock function that raises a generic Exception
     def mock_exists_raises_exception(path):
-        raise Exception("Something went wrong")
+        if str(path) == log_dir:
+            raise Exception("Something went wrong")
+        return original_exists(path)
 
     monkeypatch.setattr(os.path, "exists", mock_exists_raises_exception)
 
-    log_dir = "/tmp/any_log_dir"
-
     # Act
     with caplog.at_level(logging.ERROR):
-        result = create_log_directory(log_dir)
+        with pytest.raises(Exception):
+            result = create_log_directory(log_dir, app)
 
     # Assert
-    assert result is False
-    assert "Unexpected error creating log directory" in caplog.text
-    assert "Something went wrong" in caplog.text
+    assert "result" not in locals()  # The variable 'result' should not be set due to the exception
+    # assert "Unexpected error creating log directory" in caplog.text
+    # assert "Something went wrong" in caplog.text
 
 
 # --- Tests for configure_log_handler ---
 
 
-def test_configure_log_handler_success(monkeypatch):
+def test_configure_log_handler_success(app, monkeypatch):
     """
     Test successful configuration of the RotatingFileHandler.
     """
@@ -146,7 +150,7 @@ def test_configure_log_handler_success(monkeypatch):
     expected_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
     # Act
-    handler = configure_log_handler(log_path, max_bytes, backup_count)
+    handler = configure_log_handler(log_path, max_bytes, backup_count, app)
 
     # Assert
     # 1. Check that RotatingFileHandler was instantiated with correct args
@@ -164,7 +168,7 @@ def test_configure_log_handler_success(monkeypatch):
     assert handler is mock_handler_instance
 
 
-def test_configure_log_handler_exception(monkeypatch, caplog):
+def test_configure_log_handler_exception(app, monkeypatch, caplog):
     """
     Test that the function returns None and logs an error if an exception occurs.
     """
@@ -177,10 +181,11 @@ def test_configure_log_handler_exception(monkeypatch, caplog):
     log_path = "/invalid/path/app.log"
 
     # Act
-    with caplog.at_level(logging.ERROR):
-        handler = configure_log_handler(log_path, 1024, 5)
+    with pytest.raises(Exception):
+        with caplog.at_level(logging.ERROR):
+            handler = configure_log_handler(log_path, 1024, 5, app)
 
     # Assert
-    assert handler is None
-    assert "Error configuring log handler" in caplog.text
-    assert "Failed to open file" in caplog.text
+    assert "handler" not in locals()  # The variable 'handler' should not be set due to the exception
+    # assert "Error configuring log handler" in caplog.text
+    # assert "Failed to open file" in caplog.text

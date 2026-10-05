@@ -55,7 +55,7 @@ def generate_new_key(key_file_path: str, is_cli: bool = False) -> bytes:
             f"Permissions for '{key_file_path}' set to 600 (read/write for owner only)."
         )
         return encryption_key
-    except (IOError, OSError) as e:
+    except (OSError) as e:
         _get_logger().warning(
             f"ERROR: Could not write key to '{key_file_path}': {e}"
         )
@@ -76,7 +76,7 @@ def read_key(key_file_path: str) -> bytes:
         with open(key_file_path, "rb") as f:
             encryption_key = f.read()
         return encryption_key
-    except (IOError, OSError) as e:
+    except (OSError) as e:
         _get_logger().error(
             f"Error reading secret key file '{key_file_path}': {e}"
         )
@@ -113,7 +113,7 @@ def init_cipher() -> None:
         if not encryption_key:
             raise RuntimeError("Encryption key is invalid.")
         cipher = Fernet(encryption_key)
-    except (IOError, OSError) as e:
+    except (OSError) as e:
         current_app.logger.error(
             f"Error reading secret key file '{key_file_path}': {e}"
         )

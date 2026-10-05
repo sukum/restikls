@@ -101,8 +101,8 @@ def get_repo_cred() -> ResticCredentials | None:
         # return config_data
     except Exception as e:
         # This can happen if the cookie is invalid or the master key changed.
-        current_app.logger.exception(
-            f"Failed to decrypt repository key or build config: {e}"
+        current_app.logger.error(
+            f"Failed to decrypt repository key or build config: {e!s}"
         )
         flash("Unexpected error with repository credentials. Contact support if it persists.", "error")
         return None
@@ -134,7 +134,7 @@ def set_config(
             )
             enc_repo_cred = encrypt_repo_cred(repo_cred)
     except Exception as e:
-        current_app.logger.error(f"Error setting config: encryption error: {str(e)}")
+        current_app.logger.error(f"Error setting config: encryption error: {e!s}")
         raise
 
     try:
@@ -153,7 +153,7 @@ def set_config(
             )
         return response
     except Exception as e:
-        current_app.logger.error(f"Error setting config: set_cookie error: {str(e)}")
+        current_app.logger.error(f"Error setting config: set_cookie error: {e!s}")
         raise
 
 
@@ -171,5 +171,5 @@ def clear_config(response: Response) -> Response:
         response.delete_cookie("repo_cred")
         return response
     except Exception as e:
-        current_app.logger.error(f"Error clearing config: {str(e)}")
+        current_app.logger.error(f"Error clearing config: {e!s}")
         raise
