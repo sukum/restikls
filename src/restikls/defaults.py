@@ -1,5 +1,8 @@
 # File: src/restikls/defaults.py
 
+from typing import ClassVar
+
+
 class DefaultConfig:
 
     #config
@@ -46,17 +49,17 @@ class DefaultConfig:
     LOG_LEVEL = "warning"
 
     # env
-    REQUIRED_ENV_VARS = [
-        # windows
-        "PATH",
-        "USERPROFILE",
-        "SystemRoot",
-        "TEMP",
-        "TMP",
-        "PROGRAMDATA",
-        "LOCALAPPDATA",
+    REQUIRED_ENV_VARS: ClassVar[list[str]] = [
         # Linux
         "HOME",
         # 'PATH',
+        # windows
+        "LOCALAPPDATA",
+        "PATH",
+        "PROGRAMDATA",
+        "SystemRoot",
+        "TEMP",
+        "TMP",
+        "USERPROFILE",
     ]
 
