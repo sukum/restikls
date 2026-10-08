@@ -84,8 +84,7 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=src \
-    HOME=/home/appuser \
-    CONFIG_FILE=/app/config.toml
+    HOME=/home/appuser
 
 # Set the working directory in the container
 WORKDIR /app
@@ -139,9 +138,10 @@ FROM base AS prod
 
 WORKDIR /app
 
-# Copy the rest of the application code
-COPY --chown=appuser:appuser --chmod=0755 . .
-RUN python -m compileall -q .
+# Copy only runtime files and license notices; preserve the src layout for PYTHONPATH.
+COPY --chown=appuser:appuser --chmod=0755 run.py config.toml LICENSE THIRD-PARTY-LICENSES.md ./
+COPY --chown=appuser:appuser --chmod=0755 src/restikls/ ./src/restikls/
+RUN python -m compileall -q src/restikls run.py
 RUN chown -Rf appuser:appuser .
 
 USER appuser
