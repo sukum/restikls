@@ -145,10 +145,10 @@ class KeyPayload(_KeyRequired, total=False):
 
 class _RepoStatsRequired(TypedDict):
     total_size: int
-    total_blob_count: int
 
 
 class RepoStatsPayload(_RepoStatsRequired, total=False):
+    total_blob_count: int
     total_file_count: int
     total_uncompressed_size: int
     snapshots_count: int
@@ -394,7 +394,7 @@ def parse_repo_stats(raw: Any) -> RepoStatsPayload:
     """Validate repository stats returned from 'restic stats --mode raw-data --json'."""
     d = _require_dict(raw, "repo stats")
     _require_field(d, "total_size", int, "repo stats")
-    _require_field(d, "total_blob_count", int, "repo stats")
+    #_require_field(d, "total_blob_count", int, "repo stats")
     return cast(RepoStatsPayload, d)
 
 
