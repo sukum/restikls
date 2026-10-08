@@ -1,11 +1,14 @@
 # Dockerfile
-ARG BASE=slim
+ARG BASE=debian
 
 ARG RESTIC_VERSION=0.19.1
 FROM docker.io/restic/restic:${RESTIC_VERSION} AS restic-bin
 
+# Map BASE names to Python images for both builder and runtime stages.
+FROM python:3.14-slim AS debian-python
+FROM python:3.14-alpine AS alpine-python
 
-FROM python:3.14-${BASE} AS builder
+FROM ${BASE}-python AS builder
 WORKDIR /app
 # Create a dedicated venv for runtime dependencies
 RUN python -m venv /opt/venv
@@ -29,7 +32,7 @@ RUN PYTHONPATH=/opt/venv/lib/python3.14/site-packages \
 ######
 
 # Debian
-FROM python:3.14-slim AS slim
+FROM debian-python AS debian
 WORKDIR /app
 
 # Install openssh-client and other system dependencies
@@ -42,7 +45,7 @@ RUN apt-get update && \
 RUN useradd -m -U -u 1000 appuser
 
 # Alpine
-FROM python:3.14-alpine AS alpine
+FROM alpine-python AS alpine
 
 # Install openssh-client and other system dependencies
 # This needs to be done as root before switching to appuser

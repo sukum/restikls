@@ -167,7 +167,7 @@ The table covers settings defined or explicitly used by restikls, including the 
 
 ## Docker
 
-Build the production image from the project directory. The default base is Debian-based `python:3.14-slim`; `BASE` can be set to `alpine` to use `python:3.14-alpine` instead:
+Build the production image from the project directory. `BASE=debian` is the default and selects `python:3.14-slim`; `BASE=alpine` selects `python:3.14-alpine`. The builder and runtime stages use the same Python image variant:
 
 ```sh
 # Default is debian based slim
