@@ -139,6 +139,7 @@ WORKDIR /app
 # Copy the rest of the application code
 COPY --chown=appuser:appuser --chmod=0755 . .
 RUN python -m compileall -q .
+RUN chown -Rf appuser:appuser .
 
 USER appuser
 
