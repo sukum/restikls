@@ -2,6 +2,25 @@
 ARG BASE=slim
 
 ARG RESTIC_VERSION=0.19.1
+FROM docker.io/restic/restic:${RESTIC_VERSION} AS restic-bin
+
+
+FROM python:3.14-${BASE} AS builder
+WORKDIR /app
+# Create a dedicated venv for runtime dependencies
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m compileall -q /opt/venv
+
+RUN /usr/local/bin/pip install --no-cache-dir pip-licenses
+RUN PYTHONPATH=/opt/venv/lib/python3.14/site-packages \
+    /usr/local/bin/pip-licenses \
+        --with-license-file \
+        --format=plain-vertical \
+        --output-file=THIRD_PARTY_LICENSES.txt
 
 ######
 # Stage 1: Sys image
@@ -11,6 +30,7 @@ ARG RESTIC_VERSION=0.19.1
 
 # Debian
 FROM python:3.14-slim AS slim
+WORKDIR /app
 
 # Install openssh-client and other system dependencies
 # This needs to be done as root before switching to appuser
@@ -40,17 +60,18 @@ RUN addgroup -g 1000 appuser \
 # Second stage - your main image
 FROM ${BASE} AS base
 
-ARG RESTIC_VERSION
-
 # Create virtualenv as root (standard 0755 permissions)
 ENV VIRTUAL_ENV=/opt/venv
-RUN python -m venv $VIRTUAL_ENV
+# RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy the requirements file and install dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-input -r /tmp/requirements.txt
+#COPY requirements.txt /tmp/requirements.txt
+#RUN --mount=type=cache,target=/root/.cache/pip \
+#    pip install --no-input -r /tmp/requirements.txt
+
+# Copy installed Python packages and license notice from builder
+COPY --from=builder /opt/venv /opt/venv
 
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 # Use ENTRYPOINT with the script to run flask key generate before starting the application
@@ -68,8 +89,9 @@ WORKDIR /app
 
 # Copy restic from downloader
 # COPY --from=restic-downloader /restic /usr/local/bin/restic
-COPY --from=docker.io/restic/restic:${RESTIC_VERSION} /usr/bin/restic /usr/local/bin/restic
+COPY --from=restic-bin /usr/bin/restic /usr/local/bin/restic
 
+COPY --from=builder /app/THIRD_PARTY_LICENSES.txt /app/THIRD_PARTY_LICENSES.txt
 
 # Create mount points for logs/cache/repo (optional)
 RUN mkdir -p /app/logs /app/cache /app/repo \
@@ -116,6 +138,7 @@ WORKDIR /app
 
 # Copy the rest of the application code
 COPY --chown=appuser:appuser --chmod=0755 . .
+RUN python -m compileall -q .
 
 USER appuser
 

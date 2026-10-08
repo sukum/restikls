@@ -1,4 +1,4 @@
-# .dockerignore
+.dockerignore
 __pycache__
 *.pyc
 *.pyo
@@ -12,7 +12,6 @@ tailwind.config.js
 test.py
 Dockerfile
 docker-compose.yml
-*.md
 .idea
 .pytest_cache
 .ruff_cache
@@ -31,6 +30,7 @@ SyncToy*
 uv.lock
 secret.key
 Containerfile
+waitress-server.py
 logs/
 cache/
 tests/
