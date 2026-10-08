@@ -13,10 +13,10 @@ class DefaultConfig:
     SUBPROCESS_TIMEOUT = 60
     REPO_STATS_TIMEOUT = 30
     FILE_OPERATIONS_TIMEOUT = 60
-    MAINTENANCE_CHECK_TIMEOUT = 300
-
+    
     # Cache
     # DEFAULT_TIMEOUT = 3600
+    CACHE_DIR = "cache"
     CACHE_DEFAULT_TIMEOUT = 600
     CACHE_TIMEOUT = CACHE_DEFAULT_TIMEOUT
 
@@ -27,7 +27,7 @@ class DefaultConfig:
     SESSION_COOKIE_SECURE = False
     # Used if SESSION_LIFE is not int
     ENCRYPTED_REPO_CREDENTIALS_OBJ_VALIDITY = 3600 * 24  # 1 day
-    REPO_BASE_DIR = "/"
+    REPO_BASE_DIR = "."
     REPO_KEY_MAXLEN = 100
 
     # view and UI

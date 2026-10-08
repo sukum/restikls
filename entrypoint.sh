@@ -14,7 +14,7 @@ flask key generate --if-missing || {
     echo "Run: "flask key generate --force" to generate the secret key."
 }
 
-for dir in "${LOGS_DIR:-/app/logs}" "${CACHE_DIR:-/app/cache}"; do
+for dir in "${RESTIKLS_LOG_DIRECTORY:-/app/logs}" "${RESTIKLS_CACHE_DIR:-/app/cache}"; do
     if [ -d "$dir" ] && [ ! -w "$dir" ]; then
         echo "Warning: Directory '${dir}' is not writable by user $(id -u). Logging/caching may fail."
     fi
