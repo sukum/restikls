@@ -57,7 +57,9 @@ def test_create_app_without_config_file(caplog, monkeypatch):
     """
     # 1. Call create_app with a path that is guaranteed not to exist
     non_existent_config = "/path/to/a/non/existent/config.toml"
-    from restikls import create_app
+    from restikls import PROJECT_ROOT, create_app
+
+    expected_config_path = PROJECT_ROOT / non_existent_config
 
     mock_secret = Mock()
     monkeypatch.setattr("restikls.setup_secret", mock_secret)
@@ -66,7 +68,7 @@ def test_create_app_without_config_file(caplog, monkeypatch):
 
     # 2. Assert that a warning was logged
     assert isinstance(app, Flask)
-    assert f"Configuration file '{non_existent_config}' not found" in caplog.text
+    assert f"Configuration file '{expected_config_path!s}' not found" in caplog.text
     assert any(record.levelname == "WARNING" for record in caplog.records)
 
 

@@ -8,10 +8,15 @@ and defines necessary hooks. It uses the application factory pattern.
 """
 
 import logging
+import os
 import sys
 import warnings
+from pathlib import Path
 
 from flask import Flask
+
+# Two levels above src/restikls/
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -58,7 +63,7 @@ if CACHE_AVAILABLE and 'Cache' in globals():
     cache = Cache()
 
 
-def create_app(config_filename: str=DefaultConfig.CONFIG_FILE_NAME) -> Flask:
+def create_app(config_filename: str | None = None) -> Flask:
     """
     Creates and configures an instance of the Flask application.
     This is the application factory.
@@ -79,17 +84,23 @@ def create_app(config_filename: str=DefaultConfig.CONFIG_FILE_NAME) -> Flask:
     except Exception as e:
         app.logger.error(f"Error occurred while loading default configuration: {e}")
         raise
+    if config_filename is None:
+        config_filename = (
+            os.environ.get("RESTIKLS_CONFIG_FILE_NAME")
+            or DefaultConfig.CONFIG_FILE_NAME
+        )
+    config_file_path = PROJECT_ROOT / config_filename
     # Load configuration from the TOML file.
     # The `silent=True` argument can be useful if the file is optional.
     try:
-        app.config.from_file(config_filename, load=tomllib.load, text=False)
+        app.config.from_file(str(config_file_path), load=tomllib.load, text=False)
     except FileNotFoundError:
         # Handle cases where the config file is missing if necessary.
         app.logger.warning(
-            f"Configuration file '{config_filename}' not found. Using defaults."
+            f"Configuration file '{config_file_path!s}' not found. Using defaults."
         )
     except tomllib.TOMLDecodeError:
-        app.logger.error(f"Invalid TOML format in '{config_filename}'. Using defaults.")
+        app.logger.error(f"Invalid TOML format in '{config_file_path!s}'. Using defaults.")
         raise
     except Exception as e:
         app.logger.error(f"Unexpected error while loading config: {e}")
