@@ -167,16 +167,15 @@ The table covers settings defined or explicitly used by restikls, including the 
 
 ## Docker
 
-Build the production image from the project directory. `BASE=debian` is the default and selects `python:3.14-slim`; `BASE=alpine` selects `python:3.14-alpine`. The builder and runtime stages use the same Python image variant:
+Public production images are available on [Docker Hub](https://hub.docker.com/r/sreekumar/restikls/tags) for both bases:
 
-```sh
-# Default is debian based slim
-docker build --target prod -t restikls:debian .
-# For alpine based
-docker build --target prod --build-arg BASE=alpine -t restikls:alpine .
-```
+| Base | Image |
+| --- | --- |
+| Debian slim | `sreekumar/restikls:<version>-debian`  (`sreekumar/restikls:latest`)|
+| Alpine | `sreekumar/restikls:<version>-alpine` |
 
-The debian image is the default and is a good general-purpose choice. Alpine is an alternative base; it uses musl instead of Debian's glibc, so Python package compatibility can differ. Build and run the image variant you plan to deploy. The Docker and Podman run examples below use `restikls:debian`; use `restikls:alpine` to run the Alpine build.
+
+The Debian image is a good general-purpose choice. Alpine is a lightweight alternative. The Docker and Podman run examples below use the debian base; use `sreekumar/restikls:<version>-alpine` to use the Alpine image.
 
 Create a named volume to retain the app's encryption key across container replacements and for writing temporary cache files. Replace `/absolute/path/to/restic-repository-parent` with the host directory containing the restic repositories. If your restic repository is `/home/user/restic`, provide `/home/user` for above. It is to restrict the repository paths submitted from browser to be restricted to only those directories inside `/home/user`. If the user enters `/home/another-user/restic`, it wouldn't be allowed.
 
@@ -191,22 +190,33 @@ docker run --detach \
   --env RESTIKLS_KEY_FILE=/app/cache/secret.key \
   --mount type=bind,source=/absolute/path/to/restic-repository-parent,target=/app/repos \
   --mount type=volume,source=restikls-state,target=/app/cache \
-  restikls:debian
+  sreekumar/restikls:latest
 ```
 
 Open <http://127.0.0.1:5000> and input repository path as `/app/repos/repository`. The repository mount is read-write because restic may need to write lock files. The named volume retains the key used to encrypt repository credentials stored in the browser cookie; keep it with your deployment data.
 
-The Dockerfile also has a `dev` target for development containers. The default build target is `prod`.
+### Build from source
+
+To build locally, run these commands from the project directory. `BASE=debian` is the default and selects `python:3.14-slim`; `BASE=alpine` selects `python:3.14-alpine`.
+
+```sh
+# Default is Debian slim
+docker build --target prod -t restikls:debian .
+# Alpine
+docker build --target prod --build-arg BASE=alpine -t restikls:alpine .
+```
+
+Use `restikls:debian` or `restikls:alpine` in the run command above to run your local build. The Dockerfile also has a `dev` target for development containers. The default build target is `prod`.
 
 ## Podman
 
-Build and run the production image with Podman. Select either base using the same `BASE` build argument:
+Pull and run the same public images with Podman. Use the fully qualified Docker Hub image name:
 
 ```sh
-# Default is debian based slim
-podman build --target prod -t restikls:debian .
-# For alpine based
-podman build --target prod --build-arg BASE=alpine -t restikls:alpine .
+# Debian slim
+podman pull docker.io/sreekumar/restikls:latest
+# Alpine
+podman pull docker.io/sreekumar/restikls:<version>-alpine
 # Used for secret key and flask cache
 podman volume create restikls-state
 
@@ -217,10 +227,21 @@ podman run --detach \
   --env RESTIKLS_KEY_FILE=/app/cache/secret.key \
   --volume /absolute/path/to/restic-repository-parent:/app/repos:rw,Z \
   --volume restikls-state:/app/cache \
-  restikls:debian
+  docker.io/sreekumar/restikls:latest
 ```
 
 Open <http://127.0.0.1:5000> and configure the repository as `/app/repos/repository`. On a host without SELinux, omit the `,Z` suffix from the bind mount.
+
+To run Alpine, replace the image in the run command with `docker.io/sreekumar/restikls:<version>-alpine`. You can also build locally from the project directory:
+
+```sh
+# Default is Debian slim
+podman build --target prod -t restikls:debian .
+# Alpine
+podman build --target prod --build-arg BASE=alpine -t restikls:alpine .
+```
+
+Use `localhost/restikls:debian` or `localhost/restikls:alpine` in the run command to run your local Podman build.
 
 ## Security notes
 
