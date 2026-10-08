@@ -4,23 +4,15 @@
 
 set -e  # Exit on error
 
-# file path of secret key
-FILE_PATH="/app/secret.key"
-
-# Log the initiation of the check
-echo "Checking for the existence of ${FILE_PATH}..."
-
-if [ -f "$FILE_PATH" ]; then
-    # File already exists, skip generation to prevent overwriting
-    echo "Info: ${FILE_PATH} already exists. Skipping Flask key generation."
-else
-    echo "Generating Flask secret key at ${FILE_PATH}"
-    # Run flask key generate command
-    # Note: Ensure FLASK_APP environment variable is set
-    flask key generate || {
-        echo "Warning: Failed to generate Flask key. Continuing anyway..."
-    }
-fi
+# Let Flask resolve KEY_FILE from defaults, config.toml, and environment overrides.
+# Preserve existing keys without prompting; set -e stops startup on failure.
+echo "Checking for Flask secret key and generating it if not present"
+# Run flask key generate command
+# Note: Ensure FLASK_APP environment variable is set
+flask key generate --if-missing || {
+    echo "Warning: Failed to generate Flask key. Continuing anyway..."
+    echo "Run: "flask key generate --force" to generate the secret key."
+}
 
 for dir in "${LOGS_DIR:-/app/logs}" "${CACHE_DIR:-/app/cache}"; do
     if [ -d "$dir" ] && [ ! -w "$dir" ]; then

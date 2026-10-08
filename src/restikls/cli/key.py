@@ -21,18 +21,27 @@ bp: Blueprint = Blueprint("cli_key", __name__, cli_group="key")
 @click.option(
     "--force", is_flag=True, help="Overwrite the existing key file without prompting."
 )
-def generate(force: bool) -> None:
+@click.option(
+    "--if-missing", is_flag=True, help="Create the key only if missing, without prompting."
+)
+def generate(force: bool, if_missing: bool) -> None:
     """Generates a new secret encryption key."""
+    if force and if_missing:
+        raise click.UsageError("--force and --if-missing cannot be used together.")
+
     key_file_path = current_app.config.get("KEY_FILE", DefaultConfig.KEY_FILE)
     if os.path.exists(key_file_path) and not force:
+        if if_missing:
+            click.echo(f"Key file '{key_file_path}' already exists. Skipping generation.")
+            return
         # Use sys.stdout/stderr for CLI context
-        print(f"WARNING: Key file '{key_file_path}' already exists.", file=sys.stdout)
+        click.echo(f"WARNING: Key file '{key_file_path}' already exists.")
         try:
             response = input("Overwrite? (y/N): ")
         except EOFError:  # Handles non-interactive environments
             response = "n"
         if response.lower() != "y":
-            print("Aborted key generation.", file=sys.stdout)
+            click.echo("Aborted key generation.")
             # return False
             sys.exit(0)
 
@@ -49,4 +58,4 @@ def display() -> None:
     key_file_path = current_app.config.get("KEY_FILE", DefaultConfig.KEY_FILE)
     # Call the key read logic from the encrypt module
     key_bytes = read_key(key_file_path)
-    print(key_bytes.decode())
+    click.echo(key_bytes.decode())
