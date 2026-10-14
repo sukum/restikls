@@ -1,0 +1,122 @@
+# This workflow is triggered when a git tag is pushed (or manually from the UI)
+# It packages the package files into a zip archive and attaches it to a GitHub Release.
+
+name: Package restikls
+
+# Controls when the action will run.
+on:
+  # Trigger automatically when any tag is pushed (e.g., v1.0.0 or 1.0.0)
+  push:
+    tags:
+      - '*'
+  # Keep manual trigger option for testing from the GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name (leave empty to auto-generate datetime tag)'
+        default: ''
+        required: false
+        type: string
+
+# Grant write permissions so the workflow can create releases and upload zip assets
+permissions:
+  contents: write
+
+# Environment variables for easy maintenance
+env:
+  PACKAGE_SLUG: restikls
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build-and-release"
+  build-and-release:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Step 1: Checkout the repository code at the pushed tag
+      - name: Checkout repository code
+        uses: actions/checkout@v7
+
+      # Step 2: Validate required files, stage into package directory, and zip
+      - name: Stage and zip package files
+        run: |
+          set -euo pipefail
+
+          echo "Starting packaging process for ${PACKAGE_SLUG}..."
+
+          # Define the required files and directories from the root folder
+          REQUIRED_ITEMS=(
+            "src"
+            "LICENSE"
+            "README.md"
+            "THIRD-PARTY-LICENSES.md"
+            "config.toml"
+            "pyproject.toml"
+            "requirements.txt"
+            "run.py"
+            "waitress-server.py"
+          )
+
+          # Verify all required files/folders exist before packaging (Edge case handling)
+          for item in "${REQUIRED_ITEMS[@]}"; do
+            if [ ! -e "$item" ]; then
+              echo "::error::Required file or directory '$item' is missing from the repository root."
+              exit 1
+            fi
+          done
+
+          # Create a clean staging directory named after the package slug
+          BUILD_DIR="/tmp/build/${PACKAGE_SLUG}"
+          mkdir -p "$BUILD_DIR"
+
+          # Copy all validated items into the staging folder
+          for item in "${REQUIRED_ITEMS[@]}"; do
+            echo "Copying $item to staging directory..."
+            cp -R "$item" "$BUILD_DIR/"
+          done
+
+          # Navigate to build root and create the zip archive, excluding hidden OS/git files
+          cd /tmp/build
+          ZIP_FILE="${GITHUB_WORKSPACE}/${PACKAGE_SLUG}.zip"
+          zip -r "$ZIP_FILE" "${PACKAGE_SLUG}" -x "*.DS_Store" -x "*/.git*"
+
+          # Verify the zip file was created and is not empty
+          if [ ! -s "$ZIP_FILE" ]; then
+            echo "::error::Failed to create a valid zip archive at $ZIP_FILE"
+            exit 1
+          fi
+
+          echo "Successfully created archive: $ZIP_FILE ($(du -h "$ZIP_FILE" | cut -f1))"
+
+      # Step 3: Upload the zip as a workflow artifact (useful for manual runs and inspection)
+      - name: Upload zip as build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.PACKAGE_SLUG }}-package
+          path: ${{ env.PACKAGE_SLUG }}.zip
+          if-no-files-found: error
+
+      # Determine the tag: pushed tag -> manual input -> current UTC datetime
+      - name: Set Release Tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          elif [[ -n "${{ inputs.tag_name }}" ]]; then
+            TAG="${{ inputs.tag_name }}"
+          else
+            TAG=$(date -u +"%Y.%m.%d-%H%M%S")
+          fi
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+
+      # Step 4: Attach the zip file to the GitHub Release (runs only when triggered by a tag push)
+      - name: Create GitHub Release and attach zip
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: ${{ env.PACKAGE_SLUG }}.zip
+          draft: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
